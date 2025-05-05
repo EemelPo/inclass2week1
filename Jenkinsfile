@@ -1,30 +1,24 @@
 pipeline {
     agent any
-
+    environment {
+        DOCKER_IMAGE = "inclass2week1"
+        DOCKER_TAG = "latest"
+        DOCKER_HUB_REPO = "eemelpo/inclass2week1"
+    }
     stages {
-        stage('Checkout') {
+        stage('Build Docker Image') {
             steps {
-                checkout scm
+                bat "docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% ."
             }
         }
-        stage('Build') {
+        stage('Deploy Image to Docker Hub') {
             steps {
-                bat 'mvn clean compile'
-            }
-        }
-        stage('Test') {
-            steps {
-                bat 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                        bat "docker tag %DOCKER_IMAGE%:%DOCKER_TAG% %DOCKER_HUB_REPO%:%DOCKER_TAG%"
+                        bat "docker push %DOCKER_HUB_REPO%:%DOCKER_TAG%"
+                    }
                 }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                bat 'mvn package'
             }
         }
     }
