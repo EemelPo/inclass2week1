@@ -14,7 +14,7 @@ pipeline {
         stage('Deploy Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'Docker_Hub') {
                         bat "docker tag %DOCKER_IMAGE%:%DOCKER_TAG% %DOCKER_HUB_REPO%:%DOCKER_TAG%"
                         bat "docker push %DOCKER_HUB_REPO%:%DOCKER_TAG%"
                     }
